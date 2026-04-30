@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FortressPass | Heritage Security Systems</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #D4AF37;
+            --charcoal: #111415;
+            --slate: #64748b;
+        }
+        body {
+            background-color: var(--charcoal);
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .gold-text { font-family: 'Newsreader', serif; color: var(--gold); }
+        .border-gold { border-color: rgba(212, 175, 55, 0.3); }
+        .section-padding { padding: 100px 20px; }
+        .nav-link {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: var(--slate);
+            transition: color 0.3s;
+        }
+        .nav-link:hover { color: var(--gold); }
+        .feature-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 40px;
+            transition: all 0.4s;
+        }
+        .feature-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-10px);
+            background: rgba(212, 175, 55, 0.05);
+        }
+        .action-btn {
+            background: var(--gold);
+            color: var(--charcoal);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            padding: 20px 40px;
+            transition: all 0.3s;
+        }
+        .action-btn:hover {
+            background: #f2ca50;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+        }
+        input, select {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 15px;
+            width: 100%;
+            color: white;
+            margin-top: 8px;
+        }
+        input:focus { outline: none; border-color: var(--gold); }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-gold h-20 flex items-center px-12 justify-between">
+        <div class="flex items-center gap-3 text-xl font-bold gold-text uppercase tracking-[0.2em]">
+            FortressPass
+        </div>
+        <div class="hidden md:flex gap-10">
+            <a href="#features" class="nav-link">Capabilities</a>
+            <a href="#protocol" class="nav-link">Protocol</a>
+            <a href="#forge" class="nav-link text-white bg-gold/10 px-4 py-2 border border-gold/20">Identity Forge</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="min-h-screen flex flex-col items-center justify-center text-center section-padding relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 pointer-events-none">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-gold rounded-full animate-pulse"></div>
+        </div>
+        <motion-div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} class="relative z-10 max-w-4xl">
+            <h1 class="text-6xl md:text-8xl gold-text font-bold mb-8 leading-tight">Heritage Security for the Modern Age</h1>
+            <p class="text-slate-400 text-lg md:text-xl tracking-widest uppercase mb-12 max-w-2xl mx-auto">
+                Physical-weighted identity forging and multi-site authentication protocols.
+            </p>
+            <div class="flex gap-6 justify-center">
+                <a href="#forge" class="action-btn">Initialize Forge</a>
+                <a href="#features" class="border border-gold/40 px-10 py-5 text-xs font-bold uppercase tracking-widest hover:bg-gold/5 transition-all">View Audit Specs</a>
+            </div>
+        </motion-div>
+    </header>
+
+    <!-- Features Section -->
+    <section id="features" class="section-padding bg-black/40">
+        <div class="max-w-7xl mx-auto px-10">
+            <div class="mb-20">
+                <h2 class="text-4xl gold-text font-bold mb-4">Core Capabilities</h2>
+                <div class="w-20 h-1 bg-gold"></div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-10">
+                <div class="feature-card">
+                    <div class="text-gold mb-6 text-4xl">01</div>
+                    <h3 class="text-xl font-bold mb-4 uppercase tracking-widest">Multi-Site Auth</h3>
+                    <p class="text-slate-500 leading-relaxed text-sm">
+                        Decoupled authentication flow. Your Master ID and physical Seal live in separate domains for maximum architectural security.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="text-gold mb-6 text-4xl">02</div>
+                    <h3 class="text-xl font-bold mb-4 uppercase tracking-widest">Citadel Seals</h3>
+                    <p class="text-slate-500 leading-relaxed text-sm">
+                        Dynamic 4-digit security seals generated in real-time. No static passwords. No permanent vulnerabilities.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="text-gold mb-6 text-4xl">03</div>
+                    <h3 class="text-xl font-bold mb-4 uppercase tracking-widest">Vault Intelligence</h3>
+                    <p class="text-slate-500 leading-relaxed text-sm">
+                        Real-time entropy auditing and strength indexing. Built for those who demand absolute certainty in their defenses.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Protocol Section -->
+    <section id="protocol" class="section-padding relative">
+        <div class="max-w-7xl mx-auto px-10 grid lg:grid-cols-2 gap-20 items-center">
+            <div class="space-y-10">
+                <h2 class="text-5xl gold-text font-bold leading-tight">The Forging Protocol</h2>
+                <div class="space-y-8">
+                    <div class="flex gap-6">
+                        <div class="w-12 h-12 border border-gold flex items-center justify-center font-bold text-gold shrink-0">I</div>
+                        <div>
+                            <h4 class="font-bold uppercase tracking-widest mb-2">Initialize Terminal</h4>
+                            <p class="text-slate-500 text-sm">Set your primary Master ID and Access Key in the main Citadel Terminal.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-6">
+                        <div class="w-12 h-12 border border-gold flex items-center justify-center font-bold text-gold shrink-0">II</div>
+                        <div>
+                            <h4 class="font-bold uppercase tracking-widest mb-2">Scan Identity QR</h4>
+                            <p class="text-slate-500 text-sm">Use your secondary device to bridge the gap to this secure portal.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-6">
+                        <div class="w-12 h-12 border border-gold flex items-center justify-center font-bold text-gold shrink-0">III</div>
+                        <div>
+                            <h4 class="font-bold uppercase tracking-widest mb-2">Forge Your Seal</h4>
+                            <p class="text-slate-500 text-sm">Verify your legal identity and clearance to receive your unique 4-digit seal.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gold/5 border border-gold/20 p-20 text-center relative overflow-hidden">
+                <div class="text-8xl gold-text opacity-10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-bold uppercase tracking-[1em]">Vault</div>
+                <div class="relative z-10">
+                    <p class="text-slate-400 italic font-serif text-2xl mb-8">"True security is not a lock, but the knowledge of the gatekeeper."</p>
+                    <p class="text-[10px] uppercase tracking-[0.5em] text-gold">Heritage Directive 2026</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Identity Forge Section (The Interactive Part) -->
+    <section id="forge" class="section-padding bg-zinc-950 border-t border-gold">
+        <div class="max-w-xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl gold-text font-bold mb-4">Identity Forge</h2>
+                <p class="text-[10px] uppercase tracking-[0.4em] text-slate-500">Secure Pin Generation Module</p>
+            </div>
+
+            <div id="forge-container" class="bg-black border-2 border-gold/30 p-12 shadow-[20px_20px_0px_#000]">
+                <!-- Step 1: Form -->
+                <div id="step-1" class="space-y-8">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Target Master ID</label>
+                        <input type="text" id="master-id" placeholder="IDENTIFIER FROM APP" class="uppercase font-mono">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Your Name</label>
+                        <input type="text" id="full-name" placeholder="ENTER YOUR NAME">
+                    </div>
+                    <button onclick="handleForge()" class="action-btn w-full mt-6">Initialize Forge</button>
+                </div>
+
+                <!-- Step 2: Result -->
+                <div id="step-2" class="hidden text-center space-y-10">
+                    <div class="py-10">
+                        <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-6">Forge Complete. Your Citadel Seal:</p>
+                        <div class="bg-white/5 border-2 border-dashed border-gold/50 py-12 relative">
+                            <span id="pin-display" class="text-6xl gold-text font-mono tracking-[0.4em]">----</span>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-gold uppercase tracking-[0.2em] leading-relaxed italic">
+                        This seal has been securely indexed.<br>Return to your main terminal and enter this code to finalize authentication.
+                    </p>
+                    <button onclick="resetForge()" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-gold transition-colors">Abort & Wipe</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="section-padding bg-black border-t border-white/5 text-center">
+        <p class="gold-text text-xl mb-6">FortressPass Heritage</p>
+        <div class="flex justify-center gap-8 mb-10">
+            <a href="#" class="nav-link">Privacy Protocol</a>
+            <a href="#" class="nav-link">Security Whitepaper</a>
+            <a href="#" class="nav-link">Audit History</a>
+        </div>
+        <p class="text-[9px] text-slate-700 uppercase tracking-widest">© 2026 Heritage Security Systems. All Rights Reserved.</p>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+          projectId: "fortresspass10",
+          appId: "1:947190168239:web:d890b2fcc5e04f5cc3f25a",
+          storageBucket: "fortresspass10.firebasestorage.app",
+          apiKey: "AIzaSyCSD6SANllZ_H-VBVWlG0pjFIbJXb1MzN0",
+          authDomain: "fortresspass10.firebaseapp.com",
+          messagingSenderId: "947190168239",
+          measurementId: "G-2MR0BYYW4P"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Check for ID in URL (if scanned via QR)
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlId = urlParams.get('id');
+        if (urlId) {
+            document.getElementById('master-id').value = urlId.toUpperCase();
+            document.getElementById('master-id').readOnly = true;
+            document.getElementById('master-id').classList.add('opacity-50');
+            // Scroll to forge automatically if ID is present
+            setTimeout(() => {
+                document.getElementById('forge').scrollIntoView({ behavior: 'smooth' });
+            }, 500);
+        }
+
+        window.handleForge = async function() {
+            const id = document.getElementById('master-id').value.trim().toLowerCase();
+            const name = document.getElementById('full-name').value.trim();
+            if (!id || !name) return alert("REQUIRED: ID and Full Name are mandatory for identity forging.");
+
+            const btn = document.querySelector('#step-1 .action-btn');
+            btn.innerText = "TRANSMITTING TO CLOUD...";
+            btn.disabled = true;
+
+            const pin = Math.floor(1000 + Math.random() * 9000).toString();
+            const data = {
+                pin: pin,
+                operatorName: name,
+                clearance: "Standard",
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                // Transmit to cloud vault
+                await setDoc(doc(db, "pending_seals", id), data);
+
+                // UI Update
+                document.getElementById('pin-display').innerText = pin;
+                document.getElementById('step-1').classList.add('hidden');
+                document.getElementById('step-2').classList.remove('hidden');
+            } catch (err) {
+                console.error("Cloud Transmission Error:", err);
+                alert("CRITICAL ERROR: Cloud bridge failed. Please check network protocols.");
+                btn.innerText = "Initialize Forge";
+                btn.disabled = false;
+            }
+        }
+
+        window.resetForge = function() {
+            document.getElementById('step-2').classList.add('hidden');
+            document.getElementById('step-1').classList.remove('hidden');
+            if (!urlId) {
+                document.getElementById('master-id').value = '';
+                document.getElementById('full-name').value = '';
+            }
+        }
+    </script>
+</body>
+</html>

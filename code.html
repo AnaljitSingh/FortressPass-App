@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>.material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24
+    }
+.stone-texture {
+    background-color: #0c0e10;
+    background-image: linear-gradient(rgba(12, 14, 16, 0.85), rgba(12, 14, 16, 0.85)), url(https://lh3.googleusercontent.com/aida-public/AB6AXuBBfgcmmPr6uPoAcG7WMsTTlwNyHa1qA-5qiuOOfNzBBTSz5BTMvaU2iN6TUEAtI_8lKO0eKYG6tZE5zKeBEzza-rXJ4sjJitzvobXtRha1Q90WbGbawK9OUH2GbY--hsMRJsgF3aLNDnX-9RBNL_BjFXWRUyFMu1uvG1Xp6Uq9F7v-kdpXaAO2p_pCa10wzL-i5Il6b0lQo4GFgV7rqS04kYEWk5jNnbXBZTAw0Nv_ODtTidP8Tv3SpSlaRA0KEfW-v4YmEeQg553q);
+    background-size: cover, 600px 600px;
+    background-repeat: repeat;
+    background-attachment: fixed
+    }
+.parchment-texture {
+    background-color: #e2e2e5;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuA4rSF0xIVcCzNwVmO-EOdnBfoy59yh9Hncm_GbAp9dz1j6L_MK0ef__CE-lh2qg7L9wAtIr3XgK3Ifs1Mmkvil3OHLPqjrHHMSnFuVRHxWj0mQdLpz9H1ThlTcLJ_1KWoyEJHImxjI1qnn6hsD9jkTF3frPXjVM09LStjL2EknCiSpNXTDJbbzaHfKCzASX-ms5YAITVeCDrpVfq6fo0hzF23oKeee5XaG-5wjShP2M26aKK9iC1N90YeI_MJRlfZdevLZLpnI44rj)
+    }
+.gold-shimmer {
+    background: linear-gradient(135deg, #f2ca50 0%, #d4af37 50%, #735c00 100%)
+    }
+.inset-carved {
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.5)
+    }</style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#e9c349",
+                        "secondary-fixed-dim": "#c8c8b0",
+                        "on-secondary-fixed": "#1b1d0e",
+                        "error": "#ffb4ab",
+                        "surface-container-low": "#1a1c1e",
+                        "primary-container": "#d4af37",
+                        "on-surface": "#e2e2e5",
+                        "error-container": "#93000a",
+                        "on-primary-container": "#554300",
+                        "secondary-fixed": "#e4e4cc",
+                        "surface": "#111415",
+                        "tertiary-container": "#b2b3b5",
+                        "surface-container-lowest": "#0c0e10",
+                        "inverse-primary": "#735c00",
+                        "primary-fixed": "#ffe088",
+                        "secondary": "#c8c8b0",
+                        "outline": "#99907c",
+                        "surface-container-high": "#282a2c",
+                        "surface-container-highest": "#333537",
+                        "secondary-container": "#494a38",
+                        "on-secondary": "#303221",
+                        "inverse-on-surface": "#2f3133",
+                        "surface-container": "#1e2022",
+                        "on-error-container": "#ffdad6",
+                        "surface-dim": "#111415",
+                        "on-secondary-container": "#b9baa3",
+                        "on-primary-fixed": "#241a00",
+                        "on-secondary-fixed-variant": "#474836",
+                        "on-tertiary-container": "#444547",
+                        "primary-fixed-dim": "#e9c349",
+                        "outline-variant": "#4d4635",
+                        "tertiary": "#ceced1",
+                        "surface-bright": "#37393b",
+                        "on-tertiary-fixed": "#1a1c1e",
+                        "on-tertiary-fixed-variant": "#454749",
+                        "on-error": "#690005",
+                        "tertiary-fixed": "#e2e2e5",
+                        "background": "#111415",
+                        "on-surface-variant": "#d0c5af",
+                        "on-tertiary": "#2f3133",
+                        "on-primary": "#3c2f00",
+                        "inverse-surface": "#e2e2e5",
+                        "on-background": "#e2e2e5",
+                        "surface-variant": "#333537",
+                        "tertiary-fixed-dim": "#c6c6c9",
+                        "primary": "#f2ca50",
+                        "on-primary-fixed-variant": "#574500"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "h1": ["Newsreader"],
+                        "body-md": ["Inter"],
+                        "h3": ["Newsreader"],
+                        "h2": ["Newsreader"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                        "h1": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400"}],
+                        "h3": ["24px", {"lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "500"}],
+                        "h2": ["32px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="stone-texture text-on-surface min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-12 h-20 bg-zinc-950/95 dark:bg-black/95 backdrop-blur-sm border-b-2 border-yellow-900/50 shadow-2xl shadow-black">
+<div class="flex items-center gap-3 text-2xl font-bold text-yellow-600 dark:text-yellow-500 uppercase tracking-widest font-serif">
+<span class="material-symbols-outlined text-3xl" data-icon="fort">fort</span>
+        FortressPass
+    </div>
+<nav class="hidden md:flex gap-8 items-center">
+<a class="font-serif text-sm uppercase tracking-wider text-yellow-500 border-b-2 border-yellow-500 pb-1 hover:text-yellow-400 transition-colors duration-300" href="#">Vault</a>
+<a class="font-serif text-sm uppercase tracking-wider text-zinc-500 hover:text-yellow-400 transition-colors duration-300" href="#">Security Audit</a>
+<a class="font-serif text-sm uppercase tracking-wider text-zinc-500 hover:text-yellow-400 transition-colors duration-300" href="#">Generator</a>
+<a class="font-serif text-sm uppercase tracking-wider text-zinc-500 hover:text-yellow-400 transition-colors duration-300" href="#">Settings</a>
+</nav>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-yellow-600" data-icon="notifications">notifications</span>
+<div class="w-10 h-10 rounded-full border-2 border-yellow-600 overflow-hidden bg-surface-container">
+<img alt="Security Officer Avatar" class="w-full h-full object-cover" data-alt="portrait of a professional security officer in a dark tailored uniform against a minimalist architectural background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5YTo5PGGSJ9cGDNhgkEhezLafP-ipfxbn2AQIBXjiwHFKKt5seblgdkP7dJfCEXLqbsauv6QwzR6Qpn4mzG0BvWiPcbr4jHHVBwCwwJt2ZPj1uMw66gpBvbltOePAcGundZV6ou8zMWBMcZMgamyB6yrw65zN_DMhjbtIlA3nDhVf79sqOvTOeMnJW1j74A52OUxWMwp2oHgnpdnD3VVc1STnFG0Sak8O7rYIPcvsdforfIazfQ5MBISxTViLx7J1K1cSQWd2wUdc"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar (Desktop) -->
+<aside class="fixed left-0 top-0 hidden md:flex flex-col pt-24 z-40 h-screen w-72 bg-zinc-950/90 dark:bg-black/90 backdrop-blur-md border-r-2 border-yellow-900/30 transition-all duration-500 ease-in-out">
+<div class="px-6 mb-12">
+<h2 class="font-h3 text-yellow-600 font-bold">FortressPass</h2>
+<p class="font-label-caps text-zinc-500 uppercase tracking-widest text-[10px]">Citadel Tier</p>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-4 bg-yellow-900/10 text-yellow-500 border-l-4 border-yellow-600 px-6 py-4 font-bold font-serif text-sm uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+            Vault
+        </a>
+<a class="flex items-center gap-4 text-zinc-500 px-6 py-4 hover:bg-zinc-900/50 hover:text-yellow-400 transition-all font-serif text-sm uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+            Security Audit
+        </a>
+<a class="flex items-center gap-4 text-zinc-500 px-6 py-4 hover:bg-zinc-900/50 hover:text-yellow-400 transition-all font-serif text-sm uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined" data-icon="key">key</span>
+            Generator
+        </a>
+<a class="flex items-center gap-4 text-zinc-500 px-6 py-4 hover:bg-zinc-900/50 hover:text-yellow-400 transition-all font-serif text-sm uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined" data-icon="settings_suggest">settings_suggest</span>
+            Settings
+        </a>
+</nav>
+<div class="mt-auto p-6">
+<div class="bg-surface-container-high/80 border-2 border-yellow-900/20 p-4 rounded-lg">
+<p class="font-label-caps text-yellow-500 mb-2">LAST BACKUP</p>
+<p class="font-body-md text-on-surface">14 Oct, 10:24 AM</p>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:pl-72 pt-24 min-h-screen">
+<div class="px-12 py-8 max-w-max_width mx-auto">
+<!-- Hero Grid -->
+<div class="grid grid-cols-12 gap-8 mb-12">
+<!-- Vault Terminal Section -->
+<div class="col-span-12 lg:col-span-8">
+<div class="parchment-texture p-8 rounded-lg border-2 border-yellow-900/30 shadow-xl relative overflow-hidden">
+<div class="absolute top-0 right-0 p-8 opacity-10">
+<span class="material-symbols-outlined text-[120px] text-zinc-900" data-icon="security">security</span>
+</div>
+<div class="relative z-10">
+<h1 class="font-h1 text-zinc-900 mb-2">Vault Terminal</h1>
+<p class="font-body-lg text-zinc-700 mb-8 max-w-lg">Initiate secure session and access encrypted heritage archives.</p>
+<div class="grid md:grid-cols-2 gap-8 items-end">
+<div class="space-y-4">
+<div>
+<label class="font-label-caps text-zinc-600 block mb-2">ACCESS KEY</label>
+<input class="w-full bg-zinc-900/5 border-2 border-zinc-400/50 rounded-none px-4 py-3 text-zinc-900 focus:border-yellow-600 focus:ring-0 font-mono" placeholder="••••••••••••" type="password"/>
+</div>
+<button class="w-full bg-zinc-950 text-yellow-500 font-serif font-bold py-4 uppercase tracking-widest border-2 border-yellow-600/50 hover:bg-black transition-colors">
+                                    Open Citadel
+                                </button>
+</div>
+<div class="bg-zinc-950/5 p-6 border border-zinc-400/30 rounded">
+<div class="flex justify-between items-center mb-4">
+<span class="font-label-caps text-zinc-600">Entropy Level</span>
+<span class="font-h3 text-yellow-700">High Strength</span>
+</div>
+<!-- Entropy Meter -->
+<div class="h-4 w-full bg-zinc-300 rounded-full overflow-hidden border border-zinc-400 p-[2px]">
+<div class="h-full w-[85%] gold-shimmer rounded-full"></div>
+</div>
+<p class="font-body-md text-zinc-600 mt-4 text-sm leading-tight italic">
+                                    "A fortress is only as strong as the weight of its gates."
+                                </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Vault Health Widget -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-8">
+<div class="bg-zinc-950/90 border-2 border-yellow-600 p-8 flex-1 flex flex-col justify-center items-center text-center shadow-2xl backdrop-blur-sm">
+<div class="relative w-32 h-32 mb-6">
+<svg class="w-full h-full -rotate-90">
+<circle class="text-yellow-900/20" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-yellow-500" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-dasharray="364.42" stroke-dashoffset="36.44" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="font-h2 text-yellow-500">92%</span>
+</div>
+</div>
+<h3 class="font-h3 text-on-surface mb-2">Vault Health</h3>
+<p class="font-body-md text-zinc-500 mb-6">Structural integrity at optimal capacity. No breaches detected.</p>
+<div class="w-full space-y-4">
+<div class="flex flex-col gap-1">
+<div class="flex justify-between text-[10px] font-label-caps text-zinc-400">
+<span>ENCRYPTION</span>
+<span>AES-256</span>
+</div>
+<div class="h-1 bg-yellow-900/30 w-full">
+<div class="h-full bg-yellow-600 w-full"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between text-[10px] font-label-caps text-zinc-400">
+<span>IDENTITY SEAL</span>
+<span>BIOMETRIC</span>
+</div>
+<div class="h-1 bg-yellow-900/30 w-full">
+<div class="h-full bg-yellow-600 w-4/5"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Asymmetric Bento Section -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Security Feed -->
+<div class="col-span-12 md:col-span-7 bg-surface-container/90 border-2 border-yellow-900/20 p-8 backdrop-blur-sm">
+<div class="flex justify-between items-center mb-8 border-b border-yellow-900/30 pb-4">
+<h3 class="font-h3 text-on-surface flex items-center gap-3">
+<span class="material-symbols-outlined text-yellow-600" data-icon="history_edu">history_edu</span>
+                        Security Ledger
+                    </h3>
+<span class="font-label-caps text-yellow-600 text-[10px] tracking-widest">LIVE UPDATES</span>
+</div>
+<div class="space-y-6">
+<div class="flex gap-4 items-start group">
+<div class="mt-1 w-2 h-2 rounded-full bg-yellow-500 group-hover:shadow-[0_0_8px_#f2ca50]"></div>
+<div>
+<p class="font-serif text-lg leading-tight text-on-surface">New session established via <span class="text-yellow-600">London Tower</span> hub.</p>
+<p class="font-body-md text-sm text-zinc-500 font-serif">10:42 AM - Oct 14, 2023</p>
+</div>
+</div>
+<div class="flex gap-4 items-start group">
+<div class="mt-1 w-2 h-2 rounded-full bg-zinc-600"></div>
+<div>
+<p class="font-serif text-lg leading-tight text-on-surface">Auto-backup of <span class="text-yellow-600">Merchant Archive</span> complete.</p>
+<p class="font-body-md text-sm text-zinc-500 font-serif">09:15 AM - Oct 14, 2023</p>
+</div>
+</div>
+<div class="flex gap-4 items-start group">
+<div class="mt-1 w-2 h-2 rounded-full bg-yellow-500"></div>
+<div>
+<p class="font-serif text-lg leading-tight text-on-surface">Credential update: <span class="text-yellow-600">Global Banking Portal</span>.</p>
+<p class="font-body-md text-sm text-zinc-500 font-serif">Yesterday, 06:30 PM</p>
+</div>
+</div>
+</div>
+<button class="mt-8 font-label-caps text-yellow-600 hover:text-yellow-400 text-[10px] tracking-[0.2em] flex items-center gap-2">
+                    VIEW FULL ARCHIVES <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<!-- Identity Hub Section -->
+<div class="col-span-12 md:col-span-5 space-y-8">
+<div class="bg-surface-container-high/90 border-2 border-yellow-900/20 p-8 h-full backdrop-blur-sm">
+<div class="flex items-center gap-4 mb-8">
+<div class="w-16 h-16 rounded-full border-2 border-yellow-600 p-1">
+<div class="w-full h-full rounded-full bg-yellow-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-zinc-950 text-3xl" data-icon="fingerprint" data-weight="fill">fingerprint</span>
+</div>
+</div>
+<div>
+<h3 class="font-h3 text-on-surface">Identity Hub</h3>
+<p class="font-body-md text-zinc-500 text-sm">Seal of Verification</p>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-4 bg-zinc-950/40 border border-yellow-900/30 rounded">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-yellow-600" data-icon="face">face</span>
+<span class="font-body-md">Biometric ID</span>
+</div>
+<span class="font-label-caps text-yellow-500 text-[10px]">ACTIVE</span>
+</div>
+<div class="flex items-center justify-between p-4 bg-zinc-950/40 border border-yellow-900/30 rounded">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-yellow-600" data-icon="devices">devices</span>
+<span class="font-body-md">Trusted Spires</span>
+</div>
+<span class="font-h3 text-on-surface text-sm">04 Units</span>
+</div>
+<div class="flex items-center justify-between p-4 bg-zinc-950/40 border border-yellow-900/30 rounded">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-yellow-600" data-icon="token">token</span>
+<span class="font-body-md">Physical Key</span>
+</div>
+<span class="material-symbols-outlined text-zinc-600" data-icon="add_circle">add_circle</span>
+</div>
+</div>
+<div class="mt-8 pt-8 border-t border-yellow-900/20">
+<div class="flex justify-center">
+<div class="w-24 h-24 opacity-20 filter grayscale">
+<img alt="Security Seal" class="w-full h-full" data-alt="a circular wax seal with a stylized castle emblem in gold and dark wax textures" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwjjkVDqgauTOkWarkWNDOopebKtknIgmueNrJK_plT5GaQ1AxZghRgtlKJucqGBoEw_kZC1SV5i0FxHeQtmlnhs49qa2dFJro6vz5aaD0SAwc-z5nCZwkG6yC50lzrzbmCRltfcvpPU_Xfsh-L-m-24eVpSfkUYq3MSFKGKoqHEPKQe3VGlXofY_ZkbnmZNHqfWOsvzpUbg9Qu02Lo81tzxVOLaI0iJOuulGqrsPVbQqxElZirChDTVFiOqlRERrYOipH_VZMgBfp"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB Action Button -->
+<button class="fixed bottom-12 right-12 w-16 h-16 bg-yellow-600 text-zinc-950 shadow-[0_0_20px_#f2ca5044] hover:scale-105 transition-transform flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl" data-icon="add" data-weight="fill">add</span>
+</button>
+</body></html>
