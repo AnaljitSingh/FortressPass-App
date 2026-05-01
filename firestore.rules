@@ -4,5 +4,11 @@ service cloud.firestore {
     match /pending_seals/{id} {
       allow read, write: if true;
     }
+    match /users/{id} {
+      allow read, write: if true;
+    }
+    match /citadel_locks/{id} {
+      allow read, write: if true;
+    }
   }
 }

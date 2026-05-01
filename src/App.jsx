@@ -366,19 +366,21 @@ const AuthView = ({ onAuthSuccess }) => {
   const [showKey, setShowKey] = useState(false);
   const [isPinGenerated, setIsPinGenerated] = useState(false);
   const [revealPin, setRevealPin] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [externalData, setExternalData] = useState(null);
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
+    setIsLoading(true);
     const id = masterId.trim().toLowerCase();
-    if (mode === 'signin') {
-      if (step === 1) {
-        if (id === 'admin' && accessKey.trim() === 'fortress2026') {
-          setStep(2);
-          return;
-        }
-        try {
+    try {
+      if (mode === 'signin') {
+        if (step === 1) {
+          if (id === 'admin' && accessKey.trim() === 'fortress2026') {
+            setStep(2);
+            return;
+          }
           const docRef = doc(db, 'users', id);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists() && docSnap.data().accessKey === accessKey.trim()) {
@@ -386,16 +388,11 @@ const AuthView = ({ onAuthSuccess }) => {
           } else {
             alert("ACCESS DENIED: Unauthorized Credentials");
           }
-        } catch (err) {
-          console.error(err);
-          alert("CRITICAL ERROR: Cloud communication failed.");
-        }
-      } else {
-        if (id === 'admin' && securityPin.trim() === '2026') {
-          onAuthSuccess({ masterId: 'admin', accessKey: 'fortress2026', pin: '2026', operatorName: 'Head Overseer', clearance: 'Overseer' });
-          return;
-        }
-        try {
+        } else {
+          if (id === 'admin' && securityPin.trim() === '2026') {
+            onAuthSuccess({ masterId: 'admin', accessKey: 'fortress2026', pin: '2026', operatorName: 'Head Overseer', clearance: 'Overseer' });
+            return;
+          }
           const docRef = doc(db, 'users', id);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists() && docSnap.data().pin === securityPin.trim()) {
@@ -404,28 +401,24 @@ const AuthView = ({ onAuthSuccess }) => {
             alert("ACCESS DENIED: Invalid Citadel Seal");
             setSecurityPin('');
           }
-        } catch (err) {
-          console.error(err);
-        }
-      }
-    } else {
-      if (step === 1) {
-        if (masterId && accessKey && accessKey === confirmKey) {
-          setStep(2);
-        } else if (accessKey !== confirmKey) {
-          alert("ERROR: Keys do not match");
         }
       } else {
-        if (isPinGenerated) {
-          const newUser = {
-            masterId: id,
-            accessKey: accessKey.trim(),
-            pin: securityPin,
-            operatorName: externalData?.operatorName || 'Unknown Operator',
-            clearance: externalData?.clearance || 'Standard',
-            createdAt: new Date().toISOString()
-          };
-          try {
+        if (step === 1) {
+          if (masterId && accessKey && accessKey === confirmKey) {
+            setStep(2);
+          } else if (accessKey !== confirmKey) {
+            alert("ERROR: Keys do not match");
+          }
+        } else {
+          if (isPinGenerated) {
+            const newUser = {
+              masterId: id,
+              accessKey: accessKey.trim(),
+              pin: securityPin,
+              operatorName: externalData?.operatorName || 'Unknown Operator',
+              clearance: externalData?.clearance || 'Standard',
+              createdAt: new Date().toISOString()
+            };
             await setDoc(doc(db, 'users', id), newUser);
             await deleteDoc(doc(db, 'pending_seals', id));
             alert(`IDENTITY FORGED: Welcome, ${newUser.operatorName}. Your Citadel Seal is active and synced to the Cloud.`);
@@ -433,14 +426,16 @@ const AuthView = ({ onAuthSuccess }) => {
             setStep(1);
             setIsPinGenerated(false);
             setSecurityPin('');
-          } catch (err) {
-            console.error(err);
-            alert("CRITICAL ERROR: Failed to finalize identity to Cloud.");
+          } else {
+            alert("ERROR: Generate your Citadel Seal first");
           }
-        } else {
-          alert("ERROR: Generate your Citadel Seal first");
         }
       }
+    } catch (err) {
+      console.error("Citadel Submit Error:", err);
+      alert(`CRITICAL ERROR: ${err.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -525,7 +520,7 @@ const AuthView = ({ onAuthSuccess }) => {
                   <input type={showKey ? "text" : "password"} required value={confirmKey} onChange={(e) => setConfirmKey(e.target.value)} className="w-full bg-black/40 border border-[#735C00]/30 px-5 py-4 text-slate-200 font-mono focus:border-[#D4AF37] focus:outline-none transition-colors" placeholder="••••••••••••" />
                 </div>
               )}
-              <button type="submit" className="w-full action-btn py-5 mt-4">{mode === 'signin' ? 'Unlock Gate' : 'Continue to Seal'}</button>
+              <button type="submit" disabled={isLoading} className={`w-full action-btn py-5 mt-4 ${isLoading ? 'opacity-60 cursor-not-allowed' : ''}`}>{isLoading ? '⟳ VERIFYING...' : (mode === 'signin' ? 'Unlock Gate' : 'Continue to Seal')}</button>
             </motion.form>
           ) : mode === 'signup' ? (
             <motion.div key="signup-step2" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="space-y-8 relative z-10 text-center">
@@ -552,7 +547,7 @@ const AuthView = ({ onAuthSuccess }) => {
                 )}
               </div>
               <div className="space-y-4">
-                <button onClick={() => handleSubmit()} disabled={!isPinGenerated} className={`w-full action-btn py-5 ${!isPinGenerated ? 'opacity-50 cursor-not-allowed' : ''}`}>Finalize Identity</button>
+                <button onClick={() => handleSubmit()} disabled={!isPinGenerated || isLoading} className={`w-full action-btn py-5 ${(!isPinGenerated || isLoading) ? 'opacity-50 cursor-not-allowed' : ''}`}>{isLoading ? '⟳ FORGING...' : 'Finalize Identity'}</button>
                 <button type="button" onClick={() => setStep(1)} className="text-[10px] font-bold text-slate-500 hover:text-[#D4AF37] uppercase tracking-widest transition-colors">Abort</button>
               </div>
             </motion.div>
@@ -565,7 +560,7 @@ const AuthView = ({ onAuthSuccess }) => {
                 </div>
               </div>
               <div className="space-y-4">
-                <button type="submit" className="w-full action-btn py-5">Verify Seal</button>
+                <button type="submit" disabled={isLoading} className={`w-full action-btn py-5 ${isLoading ? 'opacity-60 cursor-not-allowed' : ''}`}>{isLoading ? '⟳ VERIFYING...' : 'Verify Seal'}</button>
                 <button type="button" onClick={() => setStep(1)} className="text-[10px] font-bold text-slate-500 hover:text-[#D4AF37] uppercase tracking-widest transition-colors">Back</button>
               </div>
             </motion.form>
