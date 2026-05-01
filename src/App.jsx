@@ -368,6 +368,14 @@ const AuthView = ({ onAuthSuccess }) => {
   const [revealPin, setRevealPin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // New Identity Fields
+  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [countryCode, setCountryCode] = useState('+1');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [country, setCountry] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
+
   const [externalData, setExternalData] = useState(null);
 
   const handleSubmit = async (e) => {
@@ -413,9 +421,14 @@ const AuthView = ({ onAuthSuccess }) => {
           if (isPinGenerated) {
             const newUser = {
               masterId: id,
+              username: username || id,
+              fullName: fullName,
+              phoneNumber: `${countryCode}${phoneNumber}`,
+              country: country,
+              dateOfBirth: dateOfBirth,
               accessKey: accessKey.trim(),
               pin: securityPin,
-              operatorName: externalData?.operatorName || 'Unknown Operator',
+              operatorName: fullName || externalData?.operatorName || 'Unknown Operator',
               clearance: externalData?.clearance || 'Standard',
               createdAt: new Date().toISOString()
             };
@@ -487,7 +500,7 @@ const AuthView = ({ onAuthSuccess }) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-[#111415] border-2 border-[#735C00]/30 p-10 relative overflow-hidden shadow-[10px_10px_0px_#000]"
+        className="w-full max-w-2xl bg-[#111415] border-2 border-[#735C00]/30 p-10 relative overflow-hidden shadow-[10px_10px_0px_#000]"
       >
         <div className="space-y-2 border-b border-white/10 pb-6 mb-8 text-center relative z-10">
           <h2 className="text-3xl font-['Newsreader'] text-[#D4AF37] font-bold select-none">
@@ -515,10 +528,53 @@ const AuthView = ({ onAuthSuccess }) => {
                 </div>
               </div>
               {mode === 'signup' && (
-                <div className="space-y-3">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] select-none">Confirm Key</label>
-                  <input type={showKey ? "text" : "password"} required value={confirmKey} onChange={(e) => setConfirmKey(e.target.value)} className="w-full bg-black/40 border border-[#735C00]/30 px-5 py-4 text-slate-200 font-mono focus:border-[#D4AF37] focus:outline-none transition-colors" placeholder="••••••••••••" />
-                </div>
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] select-none">Full Name</label>
+                      <input type="text" required value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full bg-black/40 border border-[#735C00]/30 px-5 py-4 text-slate-200 font-mono focus:border-[#D4AF37] focus:outline-none transition-colors" placeholder="JOHN DOE" />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] select-none">Username</label>
+                      <input type="text" required value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-black/40 border border-[#735C00]/30 px-5 py-4 text-slate-200 font-mono focus:border-[#D4AF37] focus:outline-none transition-colors" placeholder="USER_X" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] select-none">Phone Number</label>
+                      <div className="flex">
+                        <select 
+                          value={countryCode} 
+                          onChange={(e) => setCountryCode(e.target.value)}
+                          className="bg-black/40 border border-[#735C00]/30 px-2 py-4 text-slate-200 font-mono focus:border-[#D4AF37] focus:outline-none border-r-0"
+                        >
+                          <option value="+1">+1 (US)</option>
+                          <option value="+91">+91 (IN)</option>
+                          <option value="+44">+44 (UK)</option>
+                          <option value="+61">+61 (AU)</option>
+                          <option value="+81">+81 (JP)</option>
+                          <option value="+49">+49 (DE)</option>
+                        </select>
+                        <input type="tel" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="w-full bg-black/40 border border-[#735C00]/30 px-5 py-4 text-slate-200 font-mono focus:border-[#D4AF37] focus:outline-none transition-colors" placeholder="1234567890" />
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] select-none">Date of Birth</label>
+                      <input type="date" required value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} className="w-full bg-black/40 border border-[#735C00]/30 px-5 py-4 text-slate-200 font-mono focus:border-[#D4AF37] focus:outline-none transition-colors [color-scheme:dark]" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] select-none">Country</label>
+                    <input type="text" required value={country} onChange={(e) => setCountry(e.target.value)} className="w-full bg-black/40 border border-[#735C00]/30 px-5 py-4 text-slate-200 font-mono focus:border-[#D4AF37] focus:outline-none transition-colors" placeholder="UNITED STATES" />
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] select-none">Confirm Key</label>
+                    <input type={showKey ? "text" : "password"} required value={confirmKey} onChange={(e) => setConfirmKey(e.target.value)} className="w-full bg-black/40 border border-[#735C00]/30 px-5 py-4 text-slate-200 font-mono focus:border-[#D4AF37] focus:outline-none transition-colors" placeholder="••••••••••••" />
+                  </div>
+                </>
               )}
               <button type="submit" disabled={isLoading} className={`w-full action-btn py-5 mt-4 ${isLoading ? 'opacity-60 cursor-not-allowed' : ''}`}>{isLoading ? '⟳ VERIFYING...' : (mode === 'signin' ? 'Unlock Gate' : 'Continue to Seal')}</button>
             </motion.form>
