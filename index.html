@@ -2,15 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="manifest" href="./manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <!-- Citadel PWA Protocols -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Citadel">
-    <link rel="apple-touch-icon" href="/icon.png">
+    <link rel="apple-touch-icon" href="./icon.png">
     
     <!-- Core UI Engines -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
@@ -51,31 +51,42 @@
     <title>FortressPass | Heritage Security</title>
   </head>
   <body class="bg-[#1A1C1E]">
-    <div id="root">
-      <!-- Fail-safe Loading / Repair Screen -->
-      <div id="citadel-loader" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; background: #1A1C1E; font-family: 'Newsreader', serif;">
-        <div style="width: 50px; height: 50px; border: 2px solid #D4AF37; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-        <p style="color: #D4AF37; margin-top: 20px; letter-spacing: 0.2em; font-size: 12px; text-transform: uppercase;">Initializing Citadel Protocol...</p>
-        
-        <div id="repair-module" style="display: none; margin-top: 30px; text-align: center;">
-          <p style="color: #64748b; font-size: 10px; margin-bottom: 15px;">INITIALIZATION DELAY DETECTED</p>
-          <button onclick="repairCitadel()" style="background: transparent; border: 1px solid #735C00; color: #D4AF37; padding: 10px 20px; font-size: 11px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.3s;">Repair & Force Reload</button>
-        </div>
+    <!-- Fail-safe Loading / Repair Screen (Outside Root) -->
+    <div id="citadel-loader" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; background: #1A1C1E; font-family: 'Newsreader', serif; transition: opacity 0.5s ease-out;">
+      <div style="width: 50px; height: 50px; border: 2px solid #D4AF37; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+      <p style="color: #D4AF37; margin-top: 20px; letter-spacing: 0.2em; font-size: 12px; text-transform: uppercase;">Initializing Citadel Protocol...</p>
+      
+      <div id="repair-module" style="display: none; margin-top: 30px; text-align: center;">
+        <p style="color: #64748b; font-size: 10px; margin-bottom: 15px;">INITIALIZATION DELAY DETECTED</p>
+        <button onclick="repairCitadel()" style="background: transparent; border: 1px solid #735C00; color: #D4AF37; padding: 10px 20px; font-size: 11px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.3s;">Repair & Force Reload</button>
       </div>
     </div>
+
+    <div id="root"></div>
     
     <script>
+      // Hide loader once app is ready
+      window.hideCitadelLoader = function() {
+        const loader = document.getElementById('citadel-loader');
+        if (loader) {
+          loader.style.opacity = '0';
+          setTimeout(() => {
+            loader.style.display = 'none';
+          }, 500);
+        }
+      };
+
       // Fail-safe logic
       setTimeout(() => {
-        const root = document.getElementById('root');
-        // If React hasn't replaced the loader after 4 seconds, show repair module
-        if (document.getElementById('citadel-loader')) {
+        const loader = document.getElementById('citadel-loader');
+        if (loader && loader.style.display !== 'none') {
           const repair = document.getElementById('repair-module');
           if (repair) repair.style.display = 'block';
         }
-      }, 4000);
+      }, 5000);
 
       function repairCitadel() {
+        // Clear all persistent states
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.getRegistrations().then(registrations => {
             for(let registration of registrations) {
@@ -83,15 +94,26 @@
             }
           });
         }
-        caches.keys().then(names => {
-          for (let name of names) caches.delete(name);
-        });
+        
+        if ('caches' in window) {
+          caches.keys().then(names => {
+            for (let name of names) caches.delete(name);
+          });
+        }
+
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Force reload bypassing cache
         window.location.reload(true);
       }
 
       // Pre-check for browser compatibility
       window.onerror = function(msg, url, lineNo, columnNo, error) {
         console.error('Citadel Core Error:', msg, error);
+        // Show repair if a fatal error happens during boot
+        const repair = document.getElementById('repair-module');
+        if (repair) repair.style.display = 'block';
         return false;
       };
     </script>

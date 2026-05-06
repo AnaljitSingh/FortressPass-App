@@ -176,22 +176,73 @@
             </div>
 
             <div id="forge-container" class="bg-black border-2 border-gold/30 p-12 shadow-[20px_20px_0px_#000]">
-                <!-- Step 1: Form -->
-                <div id="step-1" class="space-y-8">
+                <!-- Step 1: Identity Forge Form -->
+                <div id="step-1" class="space-y-6">
                     <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Target Master ID</label>
-                        <input type="text" id="master-id" placeholder="IDENTIFIER FROM APP" class="uppercase font-mono">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Citadel Master Identifier</label>
+                        <input type="text" id="master-id" placeholder="IDENTIFIER FROM MAIN TERMINAL" class="uppercase font-mono bg-black/60 border-gold/30">
                     </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Full Legal Name</label>
+                            <input type="text" id="full-name" placeholder="JOHN DOE" class="bg-black/60 border-gold/30">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Protocol Username</label>
+                            <input type="text" id="username" placeholder="USER_ARCHITECT" class="bg-black/60 border-gold/30">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Phone Identity</label>
+                            <div class="flex">
+                                <select id="country-code" class="bg-black/80 border border-gold/30 border-r-0 w-[100px] text-[10px] font-bold text-gold">
+                                    <option value="+1">+1 (US)</option>
+                                    <option value="+91">+91 (IN)</option>
+                                    <option value="+44">+44 (UK)</option>
+                                    <option value="+971">+971 (UAE)</option>
+                                    <option value="+61">+61 (AU)</option>
+                                </select>
+                                <input type="tel" id="phone-number" placeholder="NUMBER" class="flex-1 bg-black/60 border-gold/30">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Date of Birth</label>
+                            <input type="date" id="dob" style="color-scheme: dark;" class="bg-black/60 border-gold/30 text-xs">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Operator Signature (Gender)</label>
+                            <select id="gender" class="bg-black/60 border-gold/30 text-xs">
+                                <option value="Unspecified">UNSPECIFIED</option>
+                                <option value="Male">MALE</option>
+                                <option value="Female">FEMALE</option>
+                                <option value="Binary">NON-BINARY</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Sovereign Country</label>
+                            <input type="text" id="country" placeholder="UNITED STATES" class="bg-black/60 border-gold/30">
+                        </div>
+                    </div>
+
                     <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Your Name</label>
-                        <input type="text" id="full-name" placeholder="ENTER YOUR NAME">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Heritage Domicile (Address)</label>
+                        <input type="text" id="address" placeholder="SECTOR, BLOCK, COORDINATES" class="bg-black/60 border-gold/30">
                     </div>
-                    <button onclick="handleForge()" class="action-btn w-full mt-6">Initialize Forge</button>
+
+                    <button onclick="handleForge()" class="action-btn w-full mt-8 text-lg py-6 shadow-[10px_10px_0px_rgba(212,175,55,0.1)]">Initialize Forge</button>
+                    <p class="text-[9px] text-center text-slate-600 uppercase tracking-[0.2em] animate-pulse">Establishing secure handshake with cloud vault...</p>
                 </div>
 
                 <!-- Step 2: Result -->
                 <div id="step-2" class="hidden text-center space-y-10">
                     <div class="py-10">
+                        <p class="text-[10px] text-[#D4AF37] font-bold uppercase tracking-[0.4em] mb-4">Clearance: Standard Authorization</p>
                         <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-6">Forge Complete. Your Citadel Seal:</p>
                         <div class="bg-white/5 border-2 border-dashed border-gold/50 py-12 relative">
                             <span id="pin-display" class="text-6xl gold-text font-mono tracking-[0.4em]">----</span>
@@ -243,14 +294,25 @@
             document.getElementById('master-id').classList.add('opacity-50');
             // Scroll to forge automatically if ID is present
             setTimeout(() => {
-                document.getElementById('forge').scrollIntoView({ behavior: 'smooth' });
+                const forge = document.getElementById('forge');
+                if (forge) forge.scrollIntoView({ behavior: 'smooth' });
             }, 500);
         }
 
         window.handleForge = async function() {
             const id = document.getElementById('master-id').value.trim().toLowerCase();
             const name = document.getElementById('full-name').value.trim();
-            if (!id || !name) return alert("REQUIRED: ID and Full Name are mandatory for identity forging.");
+            const user = document.getElementById('username').value.trim();
+            const code = document.getElementById('country-code').value;
+            const phone = document.getElementById('phone-number').value.trim();
+            const dob = document.getElementById('dob').value;
+            const country = document.getElementById('country').value.trim();
+            const gender = document.getElementById('gender').value;
+            const address = document.getElementById('address').value.trim();
+
+            if (!id || !name || !user || !phone || !dob || !country || !address) {
+                return alert("REQUIRED: All identity fields must be populated for high-clearance forging.");
+            }
 
             const btn = document.querySelector('#step-1 .action-btn');
             btn.innerText = "TRANSMITTING TO CLOUD...";
@@ -260,6 +322,12 @@
             const data = {
                 pin: pin,
                 operatorName: name,
+                username: user,
+                phoneNumber: `${code} ${phone}`,
+                dateOfBirth: dob,
+                country: country,
+                gender: gender,
+                address: address,
                 clearance: "Standard",
                 timestamp: new Date().toISOString()
             };
