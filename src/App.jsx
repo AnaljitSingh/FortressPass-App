@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, Copy, Save, FileText, ShieldCheck, Lock, Settings as SettingsIcon, Zap, Upload, ShieldAlert, X, Download, Terminal, Send, Mail, LogOut, Database, RefreshCcw, Key, Shield } from 'lucide-react';
 import { db } from './firebase';
-import { doc, onSnapshot, setDoc, getDoc, updateDoc, deleteField, deleteDoc } from 'firebase/firestore';
+import { collection, doc, onSnapshot, setDoc, getDoc, updateDoc, deleteField, deleteDoc, getDocs } from 'firebase/firestore';
 
 // --- SVG Icons ---
 const FortressIcon = ({ className = "w-6 h-6", color = "#D4AF37" }) => (
@@ -293,9 +293,56 @@ const AuditView = () => {
   );
 };
 
-const AdminView = ({ logs, onClearLogs }) => {
+const AdminView = ({ logs, onClearLogs, users, view, setView, isLoading, fetchUsers, addLog }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  const handleDeleteUser = async (userId, operatorName) => {
+    if (window.confirm(`CRITICAL PROTOCOL: Are you certain you wish to permanently prune the identity of "${operatorName || userId}" from the Citadel? This action is irreversible.`)) {
+      try {
+        await deleteDoc(doc(db, "users", userId));
+        addLog('IDENTITY_PRUNED', `Operator ${operatorName || userId} purged from registry`);
+        fetchUsers();
+        alert("PROTOCOL EXECUTED: Identity successfully purged.");
+      } catch (error) {
+        console.error("Prune error:", error);
+        alert("PROTOCOL FAILED: Identity erasure unsuccessful.");
+      }
+    }
+  };
+
+  const filteredUsers = users.filter(u => 
+    u.masterId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.username?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
+      <div className="flex justify-between items-center border-b border-[#735C00]/30 pb-6">
+        <div>
+          <h2 className="text-4xl gold-text font-bold uppercase tracking-widest font-['Newsreader']">Overseer Command Center</h2>
+          <p className="text-[10px] text-slate-500 uppercase tracking-[0.4em]">Centralized Intelligence & Registry Management</p>
+        </div>
+        <div className="flex gap-4">
+          <button 
+            onClick={() => setView('logs')}
+            className={`px-6 py-3 text-[10px] font-bold uppercase tracking-widest transition-all border ${view === 'logs' ? 'bg-[#D4AF37] text-black border-[#D4AF37]' : 'bg-black text-[#D4AF37] border-[#735C00]/30 hover:border-[#D4AF37]'}`}
+          >
+            System Logs
+          </button>
+          <button 
+            onClick={() => setView('registry')}
+            className={`px-6 py-3 text-[10px] font-bold uppercase tracking-widest transition-all border ${view === 'registry' ? 'bg-[#D4AF37] text-black border-[#D4AF37]' : 'bg-black text-[#D4AF37] border-[#735C00]/30 hover:border-[#D4AF37]'}`}
+          >
+            Identity Registry
+          </button>
+        </div>
+      </div>
+
       <div className="grid md:grid-cols-3 gap-8">
         <div className="bg-black/40 border border-white/10 p-6 space-y-2 shadow-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-20 h-20 bg-[#D4AF37]/5 -mr-10 -mt-10 rounded-full blur-2xl"></div>
@@ -304,37 +351,132 @@ const AdminView = ({ logs, onClearLogs }) => {
         </div>
         <div className="bg-black/40 border border-white/10 p-6 space-y-2 shadow-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-20 h-20 bg-[#D4AF37]/5 -mr-10 -mt-10 rounded-full blur-2xl"></div>
-          <p className="text-[10px] text-slate-500 uppercase tracking-widest">Active Connections</p>
-          <p className="text-3xl gold-text font-bold">14,203</p>
+          <p className="text-[10px] text-slate-500 uppercase tracking-widest">Registered Identities</p>
+          <p className="text-3xl gold-text font-bold">{users.length}</p>
         </div>
         <div className="bg-black/40 border border-white/10 p-6 space-y-2 shadow-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-20 h-20 bg-[#D4AF37]/5 -mr-10 -mt-10 rounded-full blur-2xl"></div>
-          <p className="text-[10px] text-slate-500 uppercase tracking-widest">Data Vaulted</p>
-          <p className="text-3xl gold-text font-bold">1.2 PB</p>
+          <p className="text-[10px] text-slate-500 uppercase tracking-widest">Clearance Level</p>
+          <p className="text-3xl gold-text font-bold">OVERSEER</p>
         </div>
       </div>
 
-      <div className="bg-zinc-950 border border-[#735C00]/30 p-8 space-y-6 shadow-[20px_20px_0px_rgba(0,0,0,0.5)]">
-        <div className="flex justify-between items-center border-b border-white/10 pb-4">
-          <h2 className="text-2xl gold-text uppercase tracking-widest font-bold">System Event Logs</h2>
-          <button onClick={onClearLogs} className="text-[10px] text-red-500 hover:text-red-400 uppercase tracking-widest transition-all border border-red-500/20 px-4 py-2 hover:bg-red-500/5">Clear Protocol History</button>
-        </div>
-        <div className="h-96 overflow-y-auto space-y-3 font-mono text-[11px] pr-4 custom-scrollbar">
-          {logs.length === 0 ? (
-            <div className="h-full flex items-center justify-center">
-              <p className="text-slate-600 italic uppercase tracking-[0.5em]">[ No recent events recorded ]</p>
-            </div>
-          ) : (
-            logs.map((log, i) => (
-              <div key={i} className="flex gap-6 border-l-2 border-[#D4AF37]/30 pl-6 py-2 hover:bg-white/5 transition-all group">
-                <span className="text-[#D4AF37] opacity-50 w-20 flex-shrink-0">{log.time}</span>
-                <span className={`uppercase font-bold w-32 flex-shrink-0 ${log.type === 'alert' ? 'text-red-500' : 'text-slate-300'}`}>[{log.event}]</span>
-                <span className="text-slate-500 flex-1 group-hover:text-slate-300 transition-colors">{log.details}</span>
+      {view === 'logs' ? (
+        <div className="bg-zinc-950 border border-[#735C00]/30 p-8 space-y-6 shadow-[20px_20px_0px_rgba(0,0,0,0.5)]">
+          <div className="flex justify-between items-center border-b border-white/10 pb-4">
+            <h2 className="text-2xl gold-text uppercase tracking-widest font-bold">System Event Logs</h2>
+            <button onClick={onClearLogs} className="text-[10px] text-red-500 hover:text-red-400 uppercase tracking-widest transition-all border border-red-500/20 px-4 py-2 hover:bg-red-500/5">Clear Protocol History</button>
+          </div>
+          <div className="h-96 overflow-y-auto space-y-3 font-mono text-[11px] pr-4 custom-scrollbar">
+            {logs.length === 0 ? (
+              <div className="h-full flex items-center justify-center">
+                <p className="text-slate-600 italic uppercase tracking-[0.5em]">[ No recent events recorded ]</p>
               </div>
-            ))
-          )}
+            ) : (
+              logs.map((log, i) => (
+                <div key={i} className="flex gap-6 border-l-2 border-[#D4AF37]/30 pl-6 py-2 hover:bg-white/5 transition-all group">
+                  <span className="text-[#D4AF37] opacity-50 w-20 flex-shrink-0">{log.time}</span>
+                  <span className={`uppercase font-bold w-32 flex-shrink-0 ${log.type === 'alert' ? 'text-red-500' : 'text-slate-300'}`}>[{log.event}]</span>
+                  <span className="text-slate-500 flex-1 group-hover:text-slate-300 transition-colors">{log.details}</span>
+                </div>
+              ))
+            )}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="bg-zinc-950 border border-[#735C00]/30 p-8 space-y-6 shadow-[20px_20px_0px_rgba(0,0,0,0.5)]">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-white/10 pb-6 gap-6">
+            <div>
+              <h2 className="text-2xl gold-text uppercase tracking-widest font-bold">Identity Registry</h2>
+              <p className="text-[10px] text-slate-500 uppercase tracking-widest">Master Database of All Operator Credentials</p>
+            </div>
+            <div className="flex w-full md:w-auto gap-4">
+              <div className="relative flex-1 md:w-64">
+                <input 
+                  type="text" 
+                  placeholder="SEARCH IDENTITIES..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full bg-black border border-white/10 px-4 py-2 text-[10px] font-mono text-slate-300 focus:border-[#D4AF37] outline-none"
+                />
+              </div>
+              <button 
+                onClick={fetchUsers}
+                className="p-2 border border-white/10 hover:border-[#D4AF37] transition-all group"
+                title="Refresh Registry"
+              >
+                <RefreshCcw className={`w-4 h-4 text-slate-500 group-hover:text-[#D4AF37] ${isLoading ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
+          </div>
+          
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-white/10 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+                  <th className="py-4 px-4">Master ID</th>
+                  <th className="py-4 px-4">Full Name</th>
+                  <th className="py-4 px-4">Username</th>
+                  <th className="py-4 px-4">Phone</th>
+                  <th className="py-4 px-4">Location</th>
+                  <th className="py-4 px-4">DOB</th>
+                  <th className="py-4 px-4">Protocol Key</th>
+                  <th className="py-4 px-4 text-right">Administrative</th>
+                </tr>
+              </thead>
+              <tbody className="text-[11px] font-mono">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan="9" className="py-20 text-center text-slate-500 italic uppercase tracking-[0.5em]">Synchronizing Vault Data...</td>
+                  </tr>
+                ) : filteredUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan="8" className="py-20 text-center text-slate-500 italic uppercase tracking-[0.5em]">[ No Matching Records ]</td>
+                  </tr>
+                ) : (
+                  filteredUsers.map((u, i) => (
+                    <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                      <td className="py-4 px-4">
+                        <div className="flex flex-col">
+                          <span className="text-[#D4AF37] font-bold">{u.masterId?.toUpperCase()}</span>
+                          <span className="text-[9px] text-slate-600">UID: {u.id.substring(0, 8)}...</span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex flex-col">
+                          <span className="text-slate-200 font-medium">{u.fullName?.toUpperCase() || 'N/A'}</span>
+                          <span className="text-[9px] text-slate-500 uppercase">{u.gender || 'UNSPECIFIED'}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-slate-400">{u.username || 'N/A'}</td>
+                      <td className="py-4 px-4 text-slate-400">{u.phoneNumber || 'N/A'}</td>
+                      <td className="py-4 px-4">
+                        <div className="flex flex-col">
+                          <span className="text-slate-300">{u.country?.toUpperCase() || 'N/A'}</span>
+                          <span className="text-[9px] text-slate-500 truncate max-w-[120px]">{u.address || 'N/A'}</span>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-slate-400">{u.dateOfBirth || 'N/A'}</td>
+                      <td className="py-4 px-4 text-slate-600 group-hover:text-slate-400 transition-colors">
+                        {u.accessKey ? '••••••••' : 'N/A'}
+                      </td>
+                      <td className="py-4 px-4 text-right">
+                        <button 
+                          onClick={() => handleDeleteUser(u.id, u.fullName)}
+                          className="text-red-500/40 hover:text-red-500 transition-colors p-2"
+                          title="Prune Identity"
+                        >
+                          <ShieldAlert className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       <div className="bg-black border border-white/10 p-1">
         <div className="bg-zinc-900/30 p-6">
@@ -361,7 +503,6 @@ const AuthView = ({ onAuthSuccess }) => {
   const [step, setStep] = useState(1);
   const [masterId, setMasterId] = useState('');
   const [accessKey, setAccessKey] = useState('');
-  const [confirmKey, setConfirmKey] = useState('');
   const [securityPin, setSecurityPin] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [isPinGenerated, setIsPinGenerated] = useState(false);
@@ -375,6 +516,8 @@ const AuthView = ({ onAuthSuccess }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [country, setCountry] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
+  const [gender, setGender] = useState('Unspecified');
+  const [address, setAddress] = useState('');
 
   const [externalData, setExternalData] = useState(null);
 
@@ -412,10 +555,10 @@ const AuthView = ({ onAuthSuccess }) => {
         }
       } else {
         if (step === 1) {
-          if (masterId && accessKey && accessKey === confirmKey) {
+          if (masterId && accessKey) {
             setStep(2);
-          } else if (accessKey !== confirmKey) {
-            alert("ERROR: Keys do not match");
+          } else {
+            alert("ERROR: Master ID and Access Key required");
           }
         } else {
           if (isPinGenerated) {
@@ -426,6 +569,8 @@ const AuthView = ({ onAuthSuccess }) => {
               phoneNumber: `${countryCode}${phoneNumber}`,
               country: country,
               dateOfBirth: dateOfBirth,
+              gender: gender,
+              address: address,
               accessKey: accessKey.trim(),
               pin: securityPin,
               operatorName: fullName || externalData?.operatorName || 'Unknown Operator',
@@ -462,7 +607,26 @@ const AuthView = ({ onAuthSuccess }) => {
         setSecurityPin(data.pin);
         setExternalData(data);
         setIsPinGenerated(true);
-        alert("CITADEL SYNC SUCCESSFUL: Seal retrieved from Cloud.");
+        
+        // Auto-fill form from cloud data
+        if (data.operatorName) setFullName(data.operatorName);
+        if (data.username) setUsername(data.username);
+        if (data.country) setCountry(data.country);
+        if (data.dateOfBirth) setDateOfBirth(data.dateOfBirth);
+        if (data.gender) setGender(data.gender);
+        if (data.address) setAddress(data.address);
+        if (data.phoneNumber) {
+          // Attempt to split country code and number
+          const match = data.phoneNumber.match(/^(\+\d+)\s*(.*)$/);
+          if (match) {
+            setCountryCode(match[1]);
+            setPhoneNumber(match[2]);
+          } else {
+            setPhoneNumber(data.phoneNumber);
+          }
+        }
+        
+        alert("CITADEL SYNC SUCCESSFUL: Identity data retrieved from Cloud.");
       } else {
         alert("SYNC ERROR: No Seal detected in the Cloud. Please complete the process on your mobile device.");
       }
@@ -483,13 +647,28 @@ const AuthView = ({ onAuthSuccess }) => {
           if (data.pin) {
             setSecurityPin(data.pin);
             setExternalData(data);
-            setIsPinGenerated(true);
+            // Auto-fill form from cloud data
+            if (data.operatorName) setFullName(data.operatorName);
+            if (data.username) setUsername(data.username);
+            if (data.country) setCountry(data.country);
+            if (data.dateOfBirth) setDateOfBirth(data.dateOfBirth);
+            if (data.gender) setGender(data.gender);
+            if (data.address) setAddress(data.address);
+            if (data.phoneNumber) {
+              const match = data.phoneNumber.match(/^(\+\d+)\s*(.*)$/);
+              if (match) {
+                setCountryCode(match[1]);
+                setPhoneNumber(match[2]);
+              } else {
+                setPhoneNumber(data.phoneNumber);
+              }
+            }
           }
         }
       });
       return () => unsubscribe();
     }
-  }, [mode, step, isPinGenerated, masterId]);
+  }, [mode, step, isPinGenerated, masterId, setFullName, setUsername, setCountry, setDateOfBirth, setGender, setAddress, setCountryCode, setPhoneNumber]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative">
@@ -515,9 +694,10 @@ const AuthView = ({ onAuthSuccess }) => {
           {step === 1 ? (
             <motion.form key="step1" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} onSubmit={handleSubmit} className="space-y-6 relative z-10">
               <div className="space-y-3">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] select-none">Master ID</label>
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] select-none">Master ID / Email</label>
                 <input type="text" required value={masterId} onChange={(e) => setMasterId(e.target.value)} className="w-full bg-black/40 border border-[#735C00]/30 px-5 py-4 text-slate-200 font-mono focus:border-[#D4AF37] focus:outline-none transition-colors" placeholder="IDENTIFIER" />
               </div>
+              
               <div className="space-y-3">
                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] select-none">Access Key</label>
                 <div className="relative">
@@ -527,77 +707,92 @@ const AuthView = ({ onAuthSuccess }) => {
                   </button>
                 </div>
               </div>
-              {mode === 'signup' && (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] select-none">Full Name</label>
-                      <input type="text" required value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full bg-black/40 border border-[#735C00]/30 px-5 py-4 text-slate-200 font-mono focus:border-[#D4AF37] focus:outline-none transition-colors" placeholder="JOHN DOE" />
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] select-none">Username</label>
-                      <input type="text" required value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-black/40 border border-[#735C00]/30 px-5 py-4 text-slate-200 font-mono focus:border-[#D4AF37] focus:outline-none transition-colors" placeholder="USER_X" />
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] select-none">Phone Number</label>
-                      <div className="flex">
-                        <select 
-                          value={countryCode} 
-                          onChange={(e) => setCountryCode(e.target.value)}
-                          className="bg-black/40 border border-[#735C00]/30 px-2 py-4 text-slate-200 font-mono focus:border-[#D4AF37] focus:outline-none border-r-0"
-                        >
-                          <option value="+1">+1 (US)</option>
-                          <option value="+91">+91 (IN)</option>
-                          <option value="+44">+44 (UK)</option>
-                          <option value="+61">+61 (AU)</option>
-                          <option value="+81">+81 (JP)</option>
-                          <option value="+49">+49 (DE)</option>
-                        </select>
-                        <input type="tel" required value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="w-full bg-black/40 border border-[#735C00]/30 px-5 py-4 text-slate-200 font-mono focus:border-[#D4AF37] focus:outline-none transition-colors" placeholder="1234567890" />
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] select-none">Date of Birth</label>
-                      <input type="date" required value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} className="w-full bg-black/40 border border-[#735C00]/30 px-5 py-4 text-slate-200 font-mono focus:border-[#D4AF37] focus:outline-none transition-colors [color-scheme:dark]" />
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] select-none">Country</label>
-                    <input type="text" required value={country} onChange={(e) => setCountry(e.target.value)} className="w-full bg-black/40 border border-[#735C00]/30 px-5 py-4 text-slate-200 font-mono focus:border-[#D4AF37] focus:outline-none transition-colors" placeholder="UNITED STATES" />
-                  </div>
-
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] select-none">Confirm Key</label>
-                    <input type={showKey ? "text" : "password"} required value={confirmKey} onChange={(e) => setConfirmKey(e.target.value)} className="w-full bg-black/40 border border-[#735C00]/30 px-5 py-4 text-slate-200 font-mono focus:border-[#D4AF37] focus:outline-none transition-colors" placeholder="••••••••••••" />
-                  </div>
-                </>
-              )}
-              <button type="submit" disabled={isLoading} className={`w-full action-btn py-5 mt-4 ${isLoading ? 'opacity-60 cursor-not-allowed' : ''}`}>{isLoading ? '⟳ VERIFYING...' : (mode === 'signin' ? 'Unlock Gate' : 'Continue to Seal')}</button>
+              <button type="submit" disabled={isLoading} className={`w-full action-btn py-5 mt-4 flex items-center justify-center gap-3 ${isLoading ? 'opacity-60 cursor-not-allowed' : ''}`}>
+                {isLoading ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-[#D4AF37]/30 border-t-[#D4AF37] rounded-full animate-spin"></span>
+                    VERIFYING...
+                  </>
+                ) : (
+                  mode === 'signin' ? 'Unlock Gate' : 'Continue to Seal'
+                )}
+              </button>
             </motion.form>
           ) : mode === 'signup' ? (
             <motion.div key="signup-step2" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="space-y-8 relative z-10 text-center">
               <div className="space-y-6">
                 <div className="flex justify-center bg-white p-4 border-4 border-[#D4AF37]">
-                  <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${window.location.origin}/seal.html?id=${masterId}`} alt="Scan QR" className="w-32 h-32" />
+                  <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://AnaljitSingh.github.io/FortressPass-App/seal.html?id=${masterId}`} alt="Scan QR" className="w-32 h-32" />
                 </div>
                 <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] leading-relaxed">Scan the Citadel Code above to link your physical device and generate your 4-digit Security Seal.</p>
                 {isPinGenerated ? (
                   <div className="bg-black/60 border-2 border-dashed border-[#D4AF37]/50 p-6 relative group">
                     <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-3">Your Generated Seal:</p>
-                    <div className="flex items-center justify-center gap-4">
+                    <div className="flex items-center justify-center gap-4 mb-6">
                       <p className="text-4xl text-[#D4AF37] font-mono tracking-[0.5em]">{revealPin ? securityPin : "••••"}</p>
                       <button type="button" onMouseDown={() => setRevealPin(true)} onMouseUp={() => setRevealPin(false)} onMouseLeave={() => setRevealPin(false)} className="text-[#D4AF37] hover:text-white transition-colors">
                         {revealPin ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
+
+                    <div className="space-y-4 pt-6 border-t border-white/10 text-left">
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Review Identity Forge</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <label className="text-[8px] text-slate-500 uppercase">Operator Name</label>
+                          <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-[10px] text-white outline-none focus:border-[#D4AF37]" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[8px] text-slate-500 uppercase">Username</label>
+                          <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-[10px] text-white outline-none focus:border-[#D4AF37]" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[8px] text-slate-500 uppercase">Phone Identity</label>
+                          <div className="flex">
+                            <select value={countryCode} onChange={(e) => setCountryCode(e.target.value)} className="bg-black/80 border border-white/10 text-[8px] text-[#D4AF37] px-1 outline-none">
+                              <option value="+1">+1</option>
+                              <option value="+91">+91</option>
+                              <option value="+44">+44</option>
+                              <option value="+971">+971</option>
+                              <option value="+61">+61</option>
+                            </select>
+                            <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="w-full bg-white/5 border border-white/10 px-2 py-2 text-[10px] text-white outline-none focus:border-[#D4AF37]" />
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[8px] text-slate-500 uppercase">Country</label>
+                          <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-[10px] text-white outline-none focus:border-[#D4AF37]" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[8px] text-slate-500 uppercase">DOB</label>
+                          <input type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-[10px] text-white outline-none focus:border-[#D4AF37] [color-scheme:dark]" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[8px] text-slate-500 uppercase">Operator Signature</label>
+                          <select value={gender} onChange={(e) => setGender(e.target.value)} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-[10px] text-white outline-none focus:border-[#D4AF37] [color-scheme:dark]">
+                            <option value="Unspecified">UNSPECIFIED</option>
+                            <option value="Male">MALE</option>
+                            <option value="Female">FEMALE</option>
+                            <option value="Binary">NON-BINARY</option>
+                          </select>
+                        </div>
+                        <div className="col-span-2 space-y-1">
+                          <label className="text-[8px] text-slate-500 uppercase">Heritage Domicile (Address)</label>
+                          <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} className="w-full bg-white/5 border border-white/10 px-3 py-2 text-[10px] text-white outline-none focus:border-[#D4AF37]" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <button onClick={handleSyncSeal} className="w-full border border-[#D4AF37]/30 text-[#D4AF37] py-4 text-xs font-bold uppercase tracking-widest hover:bg-[#D4AF37]/10 transition-all">Manual Sync with Device</button>
+                    <button 
+                      onClick={handleSyncSeal} 
+                      disabled={isLoading}
+                      className={`w-full border border-[#D4AF37]/30 text-[#D4AF37] py-4 text-xs font-bold uppercase tracking-widest hover:bg-[#D4AF37]/10 transition-all flex items-center justify-center gap-2 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      {isLoading ? '⟳ SYNCING...' : 'Manual Sync with Device'}
+                    </button>
                     <p className="text-[8px] text-[#D4AF37]/40 uppercase animate-pulse">Waiting for external seal generation...</p>
                   </div>
                 )}
@@ -650,8 +845,16 @@ const App = () => {
     { name: 'Vault_Architecture.pdf', size: '15.7 MB', date: '2026-04-25', type: 'Design' }
   ]);
   const [lockedFiles, setLockedFiles] = useState({});
+  const [users, setUsers] = useState([]);
+  const [adminViewTab, setAdminViewTab] = useState('logs');
+  const [isAdminLoading, setIsAdminLoading] = useState(false);
 
   useEffect(() => {
+    // Hide the pre-react loader once the app is hydrated
+    if (typeof window.hideCitadelLoader === 'function') {
+      window.hideCitadelLoader();
+    }
+
     if (!currentUser) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setLockedFiles({});
@@ -742,6 +945,25 @@ const App = () => {
     setCurrentUser(userData);
     setIsAuthenticated(true);
     addLog('ACCESS_GRANTED', `Operator ${userData.operatorName} authenticated via Master ID: ${userData.masterId}`);
+    if (userData.masterId === 'admin') {
+      fetchUsers();
+    }
+  };
+
+  const fetchUsers = async () => {
+    setIsAdminLoading(true);
+    try {
+      const querySnapshot = await getDocs(collection(db, "users"));
+      const userList = [];
+      querySnapshot.forEach((doc) => {
+        userList.push({ id: doc.id, ...doc.data() });
+      });
+      setUsers(userList);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setIsAdminLoading(false);
+    }
   };
 
   const handleSignOut = () => {
@@ -760,7 +982,18 @@ const App = () => {
 
   const renderContent = () => {
     switch (activeView) {
-      case 'Admin': return <AdminView logs={systemLogs} onClearLogs={() => setSystemLogs([])} />;
+      case 'Admin': return (
+        <AdminView 
+          logs={systemLogs} 
+          onClearLogs={() => setSystemLogs([])} 
+          users={users}
+          view={adminViewTab}
+          setView={setAdminViewTab}
+          isLoading={isAdminLoading}
+          fetchUsers={fetchUsers}
+          addLog={addLog}
+        />
+      );
       case 'Generator': return <GeneratorView files={files} lockedFiles={lockedFiles} onSealResource={handleSealResource} />;
       case 'Security Audit': return <AuditView />;
       case 'Cipher': return <CipherModule user={currentUser} initialInput={cipherInput} initialImage={cipherImage} onSaveToVault={(name, type) => addFileToVault({ name, size: '4.2 KB', type })} />;
@@ -1307,8 +1540,45 @@ const SettingsView = ({ user, onSignOut, onErasure }) => {
           <section className="space-y-6">
             <h3 className="text-xs font-bold text-[#D4AF37] uppercase tracking-widest border-l-2 border-[#D4AF37] pl-4">Operator Profile</h3>
             <div className="bg-black/40 border border-white/5 p-8 grid md:grid-cols-2 gap-8">
-              <div className="space-y-4"><label className="text-[10px] text-slate-500 uppercase tracking-widest">Active Name</label><p className="text-xl text-white font-['Newsreader']">{user?.operatorName || 'Admin'}</p></div>
-              <div className="space-y-4"><label className="text-[10px] text-slate-500 uppercase tracking-widest">Master Identifier</label><p className="text-xl text-white font-mono uppercase">{user?.masterId || 'OVERSEER'}</p></div>
+              <div className="space-y-4">
+                <label className="text-[10px] text-slate-500 uppercase tracking-widest">Full Legal Name</label>
+                <p className="text-xl text-white font-['Newsreader']">{user?.fullName || user?.operatorName || 'Admin'}</p>
+              </div>
+              <div className="space-y-4">
+                <label className="text-[10px] text-slate-500 uppercase tracking-widest">Master Identifier</label>
+                <p className="text-xl text-white font-mono uppercase">{user?.masterId || 'OVERSEER'}</p>
+              </div>
+              <div className="space-y-4">
+                <label className="text-[10px] text-slate-500 uppercase tracking-widest">Protocol Username</label>
+                <p className="text-lg text-white font-mono">{user?.username || 'N/A'}</p>
+              </div>
+              <div className="space-y-4">
+                <label className="text-[10px] text-slate-500 uppercase tracking-widest">Phone Identity</label>
+                <p className="text-lg text-white font-mono">{user?.phoneNumber || 'N/A'}</p>
+              </div>
+              <div className="space-y-4">
+                <label className="text-[10px] text-slate-500 uppercase tracking-widest">Sovereign Country</label>
+                <p className="text-lg text-white font-mono uppercase">{user?.country || 'N/A'}</p>
+              </div>
+              <div className="space-y-4">
+                <label className="text-[10px] text-slate-500 uppercase tracking-widest">Date of Birth</label>
+                <p className="text-lg text-white font-mono">{user?.dateOfBirth || 'N/A'}</p>
+              </div>
+              <div className="space-y-4">
+                <label className="text-[10px] text-slate-500 uppercase tracking-widest">Operator Signature</label>
+                <p className="text-lg text-white font-mono uppercase">{user?.gender || 'N/A'}</p>
+              </div>
+              <div className="space-y-4 col-span-full">
+                <label className="text-[10px] text-slate-500 uppercase tracking-widest">Heritage Domicile</label>
+                <p className="text-lg text-white font-mono uppercase">{user?.address || 'N/A'}</p>
+              </div>
+              <div className="space-y-4 col-span-full pt-4 border-t border-white/5">
+                <label className="text-[10px] text-slate-500 uppercase tracking-widest">Clearance Authorization</label>
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse"></div>
+                  <p className="text-sm text-[#D4AF37] font-bold uppercase tracking-[0.2em]">{user?.clearance || 'Standard'}</p>
+                </div>
+              </div>
             </div>
           </section>
           <section className="space-y-6">
